@@ -1,0 +1,29 @@
+/* Transaction verification forms; UTF-8, isolated from existing global admin styles. */
+.transaction-auth-panel,.transaction-pin-settings {max-width:760px;margin:18px 0;padding:24px;border:1px solid #d6e7e3;border-radius:18px;background:#f8fcfa;box-shadow:0 12px 32px rgba(9,68,60,.07)}
+.transaction-auth-heading {display:flex;gap:12px;align-items:center;margin-bottom:18px}
+.transaction-auth-heading span {font-size:28px}
+.transaction-auth-heading h3 {margin:0 0 4px;color:#15443c}
+.transaction-auth-heading p,.transaction-auth-help {font-size:13px;color:#60776f;margin:6px 0 15px}
+.transaction-auth-panel form,.transaction-pin-settings form {display:flex;flex-direction:column;gap:10px}
+.transaction-auth-panel label,.transaction-pin-settings label {display:block !important;margin-top:10px;margin-bottom:4px;font-size:14px;font-weight:650;color:#19483f}
+.transaction-auth-panel input,.transaction-pin-settings input {display:block;width:100%;padding:13px 14px;min-height:48px;background:white;border:1px solid #cdded8;border-radius:12px;outline:0;box-shadow:none;font:inherit}
+.transaction-auth-panel input:focus,.transaction-pin-settings input:focus {border-color:#0d9685;outline:0;box-shadow:0 0 0 3px #0d96851e}
+.transaction-auth-demo {padding:14px;border-radius:10px;background:#e1faf2;color:#095946}
+.transaction-auth-actions {display:flex;gap:12px;margin-top:10px}
+.transaction-auth-actions button,.transaction-pin-settings button {padding:12px 17px;border-radius:10px;border:1px solid #0d9685;background:#087d6e;color:white;font-weight:600;cursor:pointer}
+.transaction-auth-actions button:first-child {background:white;color:#17675c}
+.transaction-auth-actions button:disabled,.transaction-pin-settings button:disabled {opacity:.55;cursor:not-allowed}
+
+
+/* PIN: chỉ mở biểu mẫu khi thiết lập mới hoặc chủ động bấm Đổi PIN. */
+.pin-status-panel{display:flex;align-items:center;gap:14px;padding:16px;border:1px solid #cce8dc;border-radius:14px;background:#effaf5}
+.pin-status-icon{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:50%;background:#d3f2e5;color:#087f66;font-weight:800;font-size:20px}
+.pin-status-copy{flex:1;min-width:0}
+.pin-status-copy strong{color:#12483c;font-size:15px}
+.pin-status-copy p{color:#52776d;font-size:13px;line-height:1.55;margin:5px 0 0}
+.transaction-pin-settings .pin-change-button{background:#fff;color:#087d6e;border:1px solid #9ed9c7;white-space:nowrap;transition:transform .18s,box-shadow .18s}
+.transaction-pin-settings .pin-change-button:hover{transform:translateY(-2px);box-shadow:0 6px 15px rgba(9,105,80,.12)}
+.transaction-pin-settings .pin-form-actions{display:flex;gap:10px;margin-top:16px}
+.transaction-pin-settings .pin-form-actions .primary-submit{flex:1}
+.transaction-pin-settings .pin-cancel-button{background:#fff;color:#556b63;border:1px solid #d1ded8}
+@media(max-width:580px){.pin-status-panel{flex-wrap:wrap}.pin-status-copy{flex-basis:calc(100% - 56px)}.transaction-pin-settings .pin-change-button{width:100%}}

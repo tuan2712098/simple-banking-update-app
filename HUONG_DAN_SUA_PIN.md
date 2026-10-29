@@ -1,0 +1,1 @@
+Bản cập nhật đổi PIN: đã có PIN chỉ hiển thị trạng thái và nút Đổi PIN; bấm Đổi PIN yêu cầu PIN cũ + PIN mới + xác nhận. Nếu chưa có PIN, yêu cầu mật khẩu đăng nhập và PIN mới. Backend xác nhận PIN cũ, giới hạn số lần sai. Build lại cả Backend và Frontend. Không cần migration.

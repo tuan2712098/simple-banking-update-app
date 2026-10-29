@@ -1,0 +1,32 @@
+{
+
+  "env": {
+
+    "ANTHROPIC_BASE_URL": "https://ai-internal.jitsinnovationlabs.com/v1",
+
+    "ANTHROPIC_AUTH_TOKEN": "sk-e3a53f5ca175822e-jp8myt-d1da8da3",
+
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-5-5",
+
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5-5",
+
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-5-5",
+
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "claude-opus-5-5",
+
+    "ENABLE_TOOL_SEARCH": "true"
+
+  },
+
+  "modelOverrides": {
+
+    "claude-opus-5-5": "cc/claude-opus-5-5",
+
+    "claude-sonnet-5-5": "cc/claude-sonnet-5-5",
+
+    "claude-haiku-5-5": "cc/claude-haiku-5-5"
+
+  }
+
+}
+ 

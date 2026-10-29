@@ -1,0 +1,21 @@
+BAN VA DANG NHAP KHONG TU DIEN - SIMPLE BANKING APP
+
+Cac thay doi:
+1. Form dang nhap: gia tri email va mat khau mac dinh rong; yeu cau trinh duyet han che tu dong dien.
+2. Dang xuat: xoa user va accessToken khoi frontend bat ke trang thai ready.
+
+CAI DAT (PowerShell, tai thu muc goc du an):
+cd C:\Downloads\Simple_Banking_App_Security_Integrated
+Copy-Item .\frontend\src\app\login\page.tsx .\frontend\src\app\login\page.tsx.bak -Force
+Copy-Item .\frontend\src\store\authStore.ts .\frontend\src\store\authStore.ts.bak -Force
+Expand-Archive -LiteralPath "C:\Downloads\Login_Khong_Tu_Dien_Patch.zip" -DestinationPath "." -Force
+
+Mo http://localhost:3001/login va nhan Ctrl + Shift + R.
+
+Luu y: Coc Coc co the bo qua autocomplete=off. Muon KHONG tu dien chac chan,
+vao Cai dat > Tu dong dien va mat khau > Trinh quan ly mat khau,
+tim muc da luu cho localhost:3001 / localhost va xoa thong tin dang nhap.
+Ban co the tat tu dong dang nhap / tu dong dien trong cai dat mat khau cua Coc Coc.
+Xoa mat khau duoc luu trong trinh duyet KHONG xoa tai khoan khoi database.
+
+Khong can sua PostgreSQL, API hay khoa bao mat.

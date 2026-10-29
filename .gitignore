@@ -1,0 +1,23 @@
+node_modules/
+.next/
+dist/
+coverage/
+.env
+.env.local
+.env.production
+*.log
+*.tsbuildinfo
+.DS_Store
+.env.crypto.generated
+.secrets/
+
+# Sensitive / local-only
+.env.*
+!.env.example
+*.dump
+*.bak
+*.bak_*
+backup_src_*/
+src_backup*/
+frontend/src_backup*/
+*.bak*
