@@ -28,6 +28,7 @@ Backend mặc định chạy tại `http://localhost:3000`. Những API cần đ
 | GET | `/admin/transactions` | ADMIN | Xem toàn bộ giao dịch |
 | POST | `/admin/transactions/:id/approve-large` | ADMIN | Duyệt giao dịch lớn tại quầy, khách vẫn phải xác nhận OTP |
 | POST | `/admin/transactions/:id/reverse` | ADMIN | Hoàn tiền bằng giao dịch đảo ngược |
+| POST | `/admin/transactions/:id/flag` | ADMIN | Đánh dấu chuyển khoản đã hoàn tất cần kiểm tra (chỉ là nhãn, không khóa tài khoản hay đảo tiền) |
 | GET | `/admin/flagged-transactions` | ADMIN | Xem giao dịch bị gắn cờ |
 | PATCH | `/admin/flagged-transactions/:id/approve` | ADMIN | Duyệt kết quả review |
 | PATCH | `/admin/flagged-transactions/:id/reject` | ADMIN | Từ chối kết quả review |
@@ -35,6 +36,17 @@ Backend mặc định chạy tại `http://localhost:3000`. Những API cần đ
 | POST | `/admin/reconcile` | ADMIN | Chạy đối soát thủ công |
 | GET | `/admin/reconciliation-reports` | ADMIN | Xem chênh lệch sổ cái |
 | GET | `/health` | Công khai | Kiểm tra PostgreSQL |
+
+## AI (cần JWT)
+
+AI service Python chạy riêng tại `127.0.0.1:8008`; Backend chỉ gọi tới localhost. Nếu AI service không chạy, các API dưới đây trả 503 và không ảnh hưởng chuyển khoản.
+
+| Method | Endpoint | Quyền | Mô tả |
+|---|---|---|---|
+| GET | `/ai/insights?month=YYYY-MM` | CUSTOMER | Phân tích tiền ra theo người nhận, so sánh tháng, khoản chi định kỳ, dự báo cuối tháng, chi tiêu theo ngày trong tuần. Không dùng nội dung chuyển khoản |
+| GET | `/ai/transfer-check?toAccountNumber=&amount=` | CUSTOMER | Gợi ý trước khi chuyển tiền (người nhận lạ, số tiền bất thường, chuyển dồn dập). Chỉ tham khảo, không chặn giao dịch |
+| GET | `/ai/fraud/overview` | ADMIN | Chấm điểm tối đa 80 chuyển khoản gần nhất: baseline riêng của tài khoản gửi (từ 5 giao dịch) hoặc Isolation Forest khi ít lịch sử |
+| GET | `/ai/spending/overview?month=YYYY-MM` | Đăng nhập | Phân loại theo nội dung chuyển khoản (TF-IDF + Logistic Regression). Giao diện hiện không dùng nữa |
 
 ## Ví dụ
 

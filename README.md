@@ -137,11 +137,12 @@ Source không chứa mật khẩu thật. File `.env` và `.env.local` không đ
 
 See [SECURITY_INTEGRATION_GUIDE.md](./SECURITY_INTEGRATION_GUIDE.md) before starting the changed application. Database migration and private key setup are required when enabling crypto. The feature is disabled by default for compatibility with older deployments.
 
-## Bổ sung AI: Phân loại chi tiêu và giám sát bất thường (PoC)
+## Bổ sung AI: Phân tích chi tiêu và giám sát bất thường (PoC)
 
-Phiên bản này có hai màn hình mới trên Frontend Digital Wallet:
+Phiên bản này có các màn hình AI trên giao diện ví điện tử:
 
-- `/ai/spending` — dùng mô hình **TF-IDF + Logistic Regression** phân loại nội dung giao dịch và thống kê danh mục chi tiêu của người dùng.
-- `/admin/ai-fraud` — chỉ Admin, dùng **Isolation Forest** đánh giá bất thường của các giao dịch chuyển khoản đã hoàn thành.
+- `/ai/spending` — phân tích tiền ra theo **người nhận, số tiền và thời điểm** (không phụ thuộc nội dung chuyển khoản vì người dùng thường ghi qua loa): top người nhận, so sánh với tháng trước, khoản chi định kỳ, dự báo cuối tháng, chi tiêu theo ngày trong tuần.
+- `/transfer` — khung "Trợ lý AI lưu ý" nhắc khi chuyển lần đầu cho tài khoản lạ, số tiền cao hơn thói quen hoặc chuyển dồn dập. Chỉ nhắc, không chặn.
+- `/admin/ai-fraud` — chỉ Admin. Tài khoản có từ 5 giao dịch được so với **baseline riêng**; tài khoản ít lịch sử dùng **Isolation Forest** trên dữ liệu giả lập. Admin có thể đánh dấu cần kiểm tra, xác nhận bình thường/đáng ngờ và mở trang tra cứu để hoàn trả (OTP).
 
-Chạy AI service bằng Python riêng trên `127.0.0.1:8008` (xem **`docs/huong-dan/HUONG_DAN_AI_2_TINH_NANG.md`**); Backend NestJS vẫn ở `localhost:3000`, Frontend ở `localhost:3001`. Không cần migration mới. Đây là nghiên cứu/demo ML trên dữ liệu huấn luyện giả lập, không khẳng định chính xác với ngân hàng thực, không tự khóa giao dịch. Các cấu hình `.env` và khóa mật mã riêng tư của bạn không nằm trong bản đóng gói.
+Chạy AI service bằng Python riêng trên `127.0.0.1:8008` (xem **`docs/huong-dan/HUONG_DAN_AI_2_TINH_NANG.md`**); Backend NestJS vẫn ở `localhost:3000`, Frontend ở `localhost:3001`. Không cần migration mới. Đây là nghiên cứu/demo trên dữ liệu giả lập, chưa đo precision/recall, không khẳng định chính xác với ngân hàng thực và không tự khóa giao dịch. Các cấu hình `.env` và khóa mật mã riêng tư của bạn không nằm trong bản đóng gói. Báo cáo cập nhật ngày 30/10/2026 ghi chi tiết thay đổi và hạn chế.
