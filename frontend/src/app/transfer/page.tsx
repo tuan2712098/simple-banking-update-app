@@ -18,6 +18,8 @@ interface TransferResult {
   demoOtp?: string;
 }
 
+type TransferCheck = { level: 'ok' | 'info' | 'warn'; hints: { level: 'info' | 'warn'; text: string }[] };
+
 export default function TransferPage() {
   const [toAccountNumber, setToAccountNumber] = useState('');
   const [amount, setAmount] = useState('');
@@ -30,8 +32,22 @@ export default function TransferPage() {
   const [loading, setLoading] = useState(false);
   const key = useRef('');
   const busy = useRef(false);
+  const [check, setCheck] = useState<TransferCheck | null>(null);
 
   useEffect(() => { key.current = crypto.randomUUID(); }, []);
+
+  // Gợi ý dựa trên thói quen chuyển tiền của chính người dùng; chỉ mang tính tham khảo, không chặn giao dịch.
+  useEffect(() => {
+    const account = toAccountNumber.trim();
+    if (!/^\d{8,30}$/.test(account) || !/^(?!0+(?:\.0{1,2})?$)\d{1,16}(?:\.\d{1,2})?$/.test(amount)) { setCheck(null); return; }
+    let current = true;
+    const timer = setTimeout(() => {
+      api.get<TransferCheck>('/ai/transfer-check', { params: { toAccountNumber: account, amount } })
+        .then(response => { if (current) setCheck(response.data); })
+        .catch(() => { if (current) setCheck(null); });
+    }, 500);
+    return () => { current = false; clearTimeout(timer); };
+  }, [toAccountNumber, amount]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -121,6 +137,7 @@ export default function TransferPage() {
             <label htmlFor="receiver">Số tài khoản người nhận</label><div className="field-shell"><AppIcon name="credit-card" size={20}/><input id="receiver" inputMode="numeric" value={toAccountNumber} onChange={(event) => setToAccountNumber(event.target.value)} placeholder="Nhập số tài khoản nhận" required /></div>
             <label htmlFor="amount">Số tiền chuyển (VND)</label><div className="field-shell"><AppIcon name="wallet" size={20}/><input id="amount" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="Ví dụ: 100000" required /><span className="field-suffix">VND</span></div>
             <label htmlFor="description">Nội dung chuyển khoản</label><textarea id="description" value={description} maxLength={255} onChange={(event) => setDescription(event.target.value)} placeholder="Nhập nội dung chuyển khoản..." required />
+            {check && check.hints.length > 0 && <div className={`ai-transfer-hint ${check.level === 'warn' ? 'warn' : ''}`}><strong><AppIcon name="sparkles" size={15}/> Trợ lý AI lưu ý</strong><ul>{check.hints.map((hint, index) => <li key={index}>{hint.text}</li>)}</ul></div>}
             {error && <div className="form-error">{error}</div>}{success && <div className="form-success"><AppIcon name="circle-check" size={19}/>{success}</div>}
             <button className="primary-submit" type="submit" disabled={loading}>{loading ? 'Đang xử lý...' : <>Tiếp tục chuyển tiền <AppIcon name="arrow-right" size={19}/></>}</button>
           </form> : <form onSubmit={confirmOtp}>

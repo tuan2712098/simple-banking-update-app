@@ -647,3 +647,25 @@ form button:hover:not(:disabled),.pagination button:hover:not(:disabled){backgro
   box-shadow: 0 0 0 3px rgba(13,148,136,.12) !important;
 }
 
+
+/* AI insights */
+.ai-nick-btn{border:0;background:none;color:#7e9991;cursor:pointer;margin-left:6px;font-size:13px}
+.ai-nick-btn:hover{color:#078a76}
+.ai-nick-input{border:1px solid #cfe3dc;border-radius:8px;padding:4px 8px;font-size:13px;width:100%;max-width:180px}
+.ai-recurring-list{display:flex;flex-direction:column;gap:12px}
+.ai-recurring{display:flex;justify-content:space-between;gap:14px;padding:12px 14px;border:1px solid #e3ebe8;border-radius:12px}
+.ai-recurring-right{text-align:right}
+.ai-due-soon{color:#c0392b!important;font-weight:700}
+.ai-weekday-chart{display:flex;align-items:flex-end;gap:10px;height:170px}
+.ai-weekday{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%}
+.ai-weekday-bar-wrap{flex:1;width:100%;display:flex;align-items:flex-end}
+.ai-weekday-bar{width:100%;background:#9fd6c9;border-radius:6px 6px 0 0;transition:height .3s}
+.ai-weekday-bar.peak{background:#078a76}
+.ai-transfer-hint{margin:12px 0;padding:11px 14px;border-radius:12px;font-size:13px;line-height:1.55;background:#eef6f3;color:#25594d}
+.ai-transfer-hint.warn{background:#fff4e0;color:#8a5a00;border:1px solid #f0d49a}
+.ai-transfer-hint ul{margin:6px 0 0;padding-left:18px}
+.ai-actions{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:150px}
+.ai-actions button{border:1px solid #cfe3dc;background:#fff;color:#0f6e5e;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer}
+.ai-actions button:hover:not(:disabled){background:#eef6f3}
+.ai-actions button:disabled{opacity:.5;cursor:default}
+.ai-actions a{font-size:12px;color:#078a76;font-weight:700}
