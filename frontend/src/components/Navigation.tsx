@@ -63,7 +63,7 @@ export default function Navigation({ title }: { title: string }) {
 
   return <>
     <aside className={`app-sidebar ${menuOpen ? 'sidebar-open' : ''}`} aria-label="Thanh điều hướng">
-      <Link href={home} className="sidebar-brand" onClick={() => setMenuOpen(false)}><span className="brand-emblem"><AppIcon name="layers" size={23}/></span><span><strong>Simple<span>Bank</span></strong><small>NGÂN HÀNG SỐ MÔ PHỎNG</small></span></Link>
+      <Link href={home} className="sidebar-brand" onClick={() => setMenuOpen(false)}><span className="brand-emblem"><AppIcon name="layers" size={23}/></span><span><strong>Lumi<span>Bank</span></strong><small>NGÂN HÀNG SỐ MÔ PHỎNG</small></span></Link>
       <div className="sidebar-navigation"><span className="sidebar-group-label">{user?.role === 'admin' ? 'QUẢN TRỊ HỆ THỐNG' : user?.role === 'teller' ? 'GIAO DỊCH TẠI QUẦY' : 'DÀNH CHO BẠN'}</span>
         {links.map(item => <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="sidebar-link" aria-current={isSelected(item.href) ? 'page' : undefined}><AppIcon name={item.icon} size={19}/><span>{item.label}</span></Link>)}
       </div>
