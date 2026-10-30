@@ -12,7 +12,7 @@ type FraudPrediction = {
 };
 type FraudFeature = {
   amount_vnd: number; avg_amount_vnd: number; hour: number;
-  recent_count_24h: number; new_recipient: boolean; history_count: number;
+  recent_count_24h: number; new_recipient: boolean; history_count: number; std_amount_vnd: number;
 };
 
 function amountNumber(amount: string): number {
@@ -128,7 +128,19 @@ export class AiService {
       .where('t.type = :type', { type: TransactionType.TRANSFER })
       .andWhere('t.status = :status', { status: TransactionStatus.COMPLETED })
       .orderBy('t.createdAt', 'DESC').take(500).getMany();
-    const ordered = rows.reverse();
+    // Lấy toàn bộ lịch sử của những người gửi xuất hiện trong 80 giao dịch gần nhất,
+    // để đặc trưng (trung bình, người nhận mới, tần suất) không bị cắt cụt theo cửa sổ 500.
+    const latest = rows.slice(0, 80);
+    const latestIds = new Set(latest.map(tx => tx.id));
+    const senderIds = [...new Set(latest.map(tx => tx.fromAccount?.id).filter((id): id is string => !!id))];
+    const fullHistory = senderIds.length ? await this.transactions.createQueryBuilder('t')
+      .leftJoinAndSelect('t.fromAccount', 'source')
+      .leftJoinAndSelect('t.toAccount', 'destination')
+      .where('source.id IN (:...senderIds)', { senderIds })
+      .andWhere('t.type = :type', { type: TransactionType.TRANSFER })
+      .andWhere('t.status = :status', { status: TransactionStatus.COMPLETED })
+      .orderBy('t.createdAt', 'DESC').take(5000).getMany() : [];
+    const ordered = fullHistory.reverse();
     const history = new Map<string, { times: number[]; amounts: number[]; recipients: Set<string> }>();
     const calculated = ordered.map(tx => {
       const sender = tx.fromAccount?.id || 'unknown';
@@ -138,15 +150,18 @@ export class AiService {
       const amount = amountNumber(tx.amount);
       const recent = past.times.filter(time => time >= timestamp - 86400000).length;
       const average = past.amounts.length ? past.amounts.reduce((a, b) => a + b, 0) / past.amounts.length : amount;
+      const variance = past.amounts.length > 1
+        ? past.amounts.reduce((sum, value) => sum + (value - average) ** 2, 0) / (past.amounts.length - 1) : 0;
       const features: FraudFeature = {
         amount_vnd: amount, avg_amount_vnd: average, hour: vietnamHour(new Date(tx.createdAt)),
         recent_count_24h: recent, new_recipient: !past.recipients.has(receiver), history_count: past.amounts.length,
+        std_amount_vnd: Math.sqrt(variance),
       };
       past.times.push(timestamp); past.amounts.push(amount); past.recipients.add(receiver);
       history.set(sender, past);
       return { transaction: tx, features };
     });
-    const mostRecent = calculated.slice(-80).reverse();
+    const mostRecent = calculated.filter(row => latestIds.has(row.transaction.id)).reverse();
     const predictions = mostRecent.length
       ? (await this.predict<FraudPrediction>('/predict/fraud', { transactions: mostRecent.map(row => row.features) })).items
       : [];
@@ -157,14 +172,14 @@ export class AiService {
       toAccount: maskAccount(tx.toAccount?.accountNumber),
       anomaly: predictions[index].is_anomaly, status: predictions[index].status,
       anomalyScore: predictions[index].anomaly_score, reasons: predictions[index].reasons,
-      historyCount: features.history_count,
+      historyCount: features.history_count, reviewStatus: tx.reviewStatus,
     }));
     return {
-      scanned: transactions.length, sourceCount: rows.length, sampled: rows.length === 500,
+      scanned: transactions.length, sourceCount: rows.length, sampled: rows.length === 500 || fullHistory.length === 5000,
       suspicious: transactions.filter(t => t.anomaly).length,
       transactions: transactions.sort((a, b) => Number(b.anomaly) - Number(a.anomaly)),
-      model: 'IsolationForest', trainingData: 'synthetic-demo',
-      notice: 'AI chỉ phát hiện điểm bất thường so với dữ liệu tham chiếu giả lập, KHÔNG khẳng định gian lận. Không tự động chặn hay khóa giao dịch.',
+      model: 'Baseline riêng từng tài khoản + IsolationForest', trainingData: 'synthetic-demo (chỉ dùng khi thiếu lịch sử)',
+      notice: 'AI so sánh mỗi giao dịch với thói quen riêng của tài khoản gửi (đủ 5 giao dịch trở lên); tài khoản mới dùng mô hình tham chiếu giả lập. KHÔNG khẳng định gian lận. Không tự động chặn hay khóa giao dịch.',
     };
   }
 }

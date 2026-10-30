@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field, ConfigDict
 from models import predict_fraud, predict_spending
 
-app = FastAPI(title="Simple Banking AI (Demo)", version="0.1.0", docs_url=None, redoc_url=None)
+app = FastAPI(title="LumiBank AI (Demo)", version="0.1.0", docs_url=None, redoc_url=None)
 
 class SpendingBody(BaseModel):
     descriptions: list[str] = Field(max_length=250)
@@ -16,13 +16,14 @@ class TransactionFeatures(BaseModel):
     recent_count_24h: int = Field(ge=0, le=10000)
     new_recipient: bool
     history_count: int = Field(ge=0)
+    std_amount_vnd: float = Field(default=0, ge=0, le=1e12)
 
 class FraudBody(BaseModel):
     transactions: list[TransactionFeatures] = Field(max_length=200)
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "models": ["TF-IDF + LogisticRegression", "IsolationForest"], "training_data": "synthetic-demo"}
+    return {"status": "ok", "models": ["TF-IDF + LogisticRegression", "IsolationForest", "personal-baseline"], "training_data": "synthetic-demo"}
 
 @app.post("/predict/spending")
 def spending(body: SpendingBody):

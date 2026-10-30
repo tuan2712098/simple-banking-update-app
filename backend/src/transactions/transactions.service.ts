@@ -618,6 +618,19 @@ export class TransactionsService {
     return this.dataSource.getRepository(Transaction).find({ where: { reviewStatus: ReviewStatus.FLAGGED }, order: { createdAt: 'DESC' } });
   }
 
+  /** Admin đánh dấu thủ công một chuyển khoản đã hoàn tất để đưa vào danh sách cần kiểm tra. */
+  async flag(id: string) {
+    const transaction = await this.dataSource.getRepository(Transaction).findOne({ where: { id } });
+    if (!transaction) throw new NotFoundException('Transaction not found');
+    if (transaction.type !== TransactionType.TRANSFER || transaction.status !== TransactionStatus.COMPLETED) {
+      throw new BadRequestException('Only completed transfers can be flagged');
+    }
+    if (transaction.reviewStatus !== ReviewStatus.NONE) throw new BadRequestException('Transaction already reviewed or flagged');
+    transaction.reviewStatus = ReviewStatus.FLAGGED;
+    await this.dataSource.getRepository(Transaction).save(transaction);
+    return { id, reviewStatus: ReviewStatus.FLAGGED };
+  }
+
   async review(id: string, status: ReviewStatus.APPROVED | ReviewStatus.REJECTED) {
     const transaction = await this.dataSource.getRepository(Transaction).findOne({ where: { id } });
     if (!transaction) throw new NotFoundException('Transaction not found');

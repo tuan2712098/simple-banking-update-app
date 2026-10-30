@@ -75,6 +75,12 @@ export class AdminController {
     return this.transactions.listFlagged();
   }
 
+  @Post('transactions/:id/flag')
+  @Audit('flag_transaction', 'transaction')
+  flag(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.transactions.flag(id);
+  }
+
   @Patch('flagged-transactions/:id/approve')
   @Audit('approve_review', 'transaction')
   approve(@Param('id', new ParseUUIDPipe()) id: string) {

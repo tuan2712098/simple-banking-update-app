@@ -66,6 +66,7 @@ class FraudFeatures(TypedDict):
     recent_count_24h: int
     new_recipient: bool
     history_count: int
+    std_amount_vnd: float
 
 
 def normalize(text: str) -> str:
@@ -145,6 +146,16 @@ def predict_spending(descriptions: list[str]):
     return predictions
 
 
+MIN_PERSONAL_HISTORY = 5
+
+
+def personal_zscore(item: FraudFeatures) -> float:
+    """Độ lệch so với thói quen riêng của tài khoản gửi (sàn độ lệch chuẩn = 25% mức trung bình)."""
+    avg = max(1.0, float(item["avg_amount_vnd"]))
+    spread = max(float(item.get("std_amount_vnd", 0.0)), 0.25 * avg)
+    return (float(item["amount_vnd"]) - avg) / spread
+
+
 def predict_fraud(items: list[FraudFeatures]):
     if not items:
         return []
@@ -153,25 +164,36 @@ def predict_fraud(items: list[FraudFeatures]):
     flags = FRAUD_MODEL.predict(x)
     results = []
     for item, raw, flag in zip(items, scores, flags):
-        # Điểm hiển thị là chỉ số demo từ decision_function, KHÔNG phải xác suất.
-        level = "Cần xem xét" if int(flag) == -1 else "Bình thường"
         reasons = []
-        if item["history_count"] < 5:
-            reasons.append("Chưa đủ lịch sử của tài khoản để đối chiếu")
-        if item["amount_vnd"] > max(1, item["avg_amount_vnd"]) * 4 and item["history_count"] >= 3:
-            reasons.append("Số tiền cao hơn đáng kể mức giao dịch trước đó")
+        personal = item["history_count"] >= MIN_PERSONAL_HISTORY
+        if personal:
+            # Đủ lịch sử: so với baseline của chính tài khoản, không phụ thuộc dữ liệu giả lập.
+            z = personal_zscore(item)
+            anomaly = z > 3 or (z > 2 and bool(item["new_recipient"])) or (z > 1.5 and int(item["hour"]) < 5)
+            score = round(z, 2)
+            method = "Baseline riêng của tài khoản"
+            if z > 2:
+                reasons.append(f"Số tiền cao hơn khoảng {z:.1f} độ lệch chuẩn so với thói quen của tài khoản gửi")
+        else:
+            anomaly = int(flag) == -1
+            score = round(float(-raw), 4)
+            method = "IsolationForest (dữ liệu tham chiếu giả lập)"
+            reasons.append("Chưa đủ lịch sử của tài khoản, dùng mô hình tham chiếu chung")
+            if item["amount_vnd"] > max(1, item["avg_amount_vnd"]) * 4 and item["history_count"] >= 3:
+                reasons.append("Số tiền cao hơn đáng kể mức giao dịch trước đó")
         if item["recent_count_24h"] >= 6:
             reasons.append("Tần suất giao dịch trong 24 giờ tương đối cao")
-        if item["new_recipient"]:
+        if item["new_recipient"] and anomaly:
             reasons.append("Tài khoản nhận mới so với lịch sử đang xét")
-        if int(item["hour"]) < 5:
+        if int(item["hour"]) < 5 and anomaly:
             reasons.append("Thực hiện vào khung giờ ít phổ biến")
         results.append({
-            "is_anomaly": bool(int(flag) == -1),
-            "status": level,
-            "anomaly_score": round(float(-raw), 4),
-            "reasons": reasons or ["Mô hình đánh giá từ đặc trưng giao dịch"],
-            "model": "IsolationForest",
-            "reference": "synthetic-demo",
+            "is_anomaly": anomaly,
+            "status": "Cần xem xét" if anomaly else "Bình thường",
+            # Chỉ số tham khảo (z-score hoặc decision_function), KHÔNG phải xác suất gian lận.
+            "anomaly_score": score,
+            "reasons": reasons if anomaly else [],
+            "model": method,
+            "reference": "personal-baseline" if personal else "synthetic-demo",
         })
     return results
