@@ -144,4 +144,4 @@ Phiên bản này có hai màn hình mới trên Frontend Digital Wallet:
 - `/ai/spending` — dùng mô hình **TF-IDF + Logistic Regression** phân loại nội dung giao dịch và thống kê danh mục chi tiêu của người dùng.
 - `/admin/ai-fraud` — chỉ Admin, dùng **Isolation Forest** đánh giá bất thường của các giao dịch chuyển khoản đã hoàn thành.
 
-Chạy AI service bằng Python riêng trên `127.0.0.1:8008` (xem **`HUONG_DAN_AI_2_TINH_NANG.md`**); Backend NestJS vẫn ở `localhost:3000`, Frontend ở `localhost:3001`. Không cần migration mới. Đây là nghiên cứu/demo ML trên dữ liệu huấn luyện giả lập, không khẳng định chính xác với ngân hàng thực, không tự khóa giao dịch. Các cấu hình `.env` và khóa mật mã riêng tư của bạn không nằm trong bản đóng gói.
+Chạy AI service bằng Python riêng trên `127.0.0.1:8008` (xem **`docs/huong-dan/HUONG_DAN_AI_2_TINH_NANG.md`**); Backend NestJS vẫn ở `localhost:3000`, Frontend ở `localhost:3001`. Không cần migration mới. Đây là nghiên cứu/demo ML trên dữ liệu huấn luyện giả lập, không khẳng định chính xác với ngân hàng thực, không tự khóa giao dịch. Các cấu hình `.env` và khóa mật mã riêng tư của bạn không nằm trong bản đóng gói.
